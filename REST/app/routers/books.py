@@ -10,9 +10,9 @@ def create_book(body: BookCreate):
     return book_service.create(body)
 
 
-@router.get("/{book_id}", response_model=Book)
-def get_book(book_id: int):
-    return book_service.get_by_id(book_id)
+@router.get("/{id}", response_model=Book)
+def get_book(id: int):
+    return book_service.get_by_id(id)
 
 
 @router.get("", response_model=list[Book])
@@ -23,11 +23,11 @@ def list_books(
     return book_service.get_all(limit, offset)
 
 
-@router.put("/{book_id}", response_model=Book)
-def update_book(book_id: int, body: BookUpdate):
-    return book_service.update(book_id, body)
+@router.put("/{id}", response_model=Book)
+def update_book(id: int, body: BookUpdate):
+    return book_service.update(id, body)
 
 
-@router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_book(book_id: int):
-    book_service.delete(book_id)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_book(id: int):
+    book_service.delete(id)
