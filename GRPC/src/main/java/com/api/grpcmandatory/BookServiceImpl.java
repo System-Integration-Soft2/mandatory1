@@ -4,41 +4,53 @@ import book.BookServiceGrpc;
 import book.Books;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @GrpcService
 public class BookServiceImpl extends BookServiceGrpc.BookServiceImplBase {
 
-    private final List<Books.Book> bookList = new ArrayList<>();
+    private final JdbcTemplate jdbc;
+    private final List<StreamObserver<Books.Book>> subscribers = new CopyOnWriteArrayList<>();
 
-    private final List<StreamObserver<Books.Book>> subscribers = new ArrayList<>();
-
+    public BookServiceImpl(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
     @Override
     public void getBookById(Books.GetBookByIdRequest request, StreamObserver<Books.GetBookByIdResponse> responseObserver) {
-
-        Books.Book found = bookList.stream()
-                .filter(book -> book.getId().equals(request.getId()))
-                .findFirst()
-                .orElse(null);
-
-        if (found == null) {
+        int bookId;
+        try {
+            bookId = Integer.parseInt(request.getId());
+        } catch (NumberFormatException e) {
             responseObserver.onError(
-                    io.grpc.Status.NOT_FOUND
-                            .withDescription("Book not found")
-                            .asRuntimeException()
-            );
+                    io.grpc.Status.INVALID_ARGUMENT
+                            .withDescription("Invalid book ID")
+                            .asRuntimeException());
             return;
         }
 
+        var rows = jdbc.queryForList(
+                "SELECT nBookID, cTitle, nAuthorID, nPublishingCompanyID, nPublishingYear FROM tbook WHERE nBookID = ?",
+                bookId);
+
+        if (rows.isEmpty()) {
+            responseObserver.onError(
+                    io.grpc.Status.NOT_FOUND
+                            .withDescription("Book not found")
+                            .asRuntimeException());
+            return;
+        }
+
+        var row = rows.get(0);
         Books.GetBookByIdResponse response = Books.GetBookByIdResponse.newBuilder()
-                .setId(found.getId())
-                .setTitle(found.getTitle())
-                .setAuthorId(found.getAuthorId())
-                .setPublisherId(found.getPublisherId())
-                .setPublishingYear(found.getPublishingYear())
+                .setId(String.valueOf(row.get("nBookID")))
+                .setTitle((String) row.get("cTitle"))
+                .setAuthorId(String.valueOf(row.get("nAuthorID")))
+                .setPublisherId(String.valueOf(row.get("nPublishingCompanyID")))
+                .setPublishingYear(((Number) row.get("nPublishingYear")).intValue())
                 .build();
 
         responseObserver.onNext(response);
@@ -48,9 +60,21 @@ public class BookServiceImpl extends BookServiceGrpc.BookServiceImplBase {
 
     @Override
     public void createBook(Books.CreateBookRequest request, StreamObserver<Books.CreateBookResponse> responseObserver) {
-        String generatedId = java.util.UUID.randomUUID().toString();
+        var keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
+        jdbc.update(connection -> {
+            var ps = connection.prepareStatement(
+                    "INSERT INTO tbook (cTitle, nAuthorID, nPublishingCompanyID, nPublishingYear) VALUES (?, ?, ?, ?)",
+                    java.sql.Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, request.getTitle());
+            ps.setInt(2, Integer.parseInt(request.getAuthorId()));
+            ps.setInt(3, Integer.parseInt(request.getPublisherId()));
+            ps.setInt(4, request.getPublishingYear());
+            return ps;
+        }, keyHolder);
 
-        Books.Book newBook = Books.Book.newBuilder()
+        String generatedId = String.valueOf(keyHolder.getKey());
+
+        Books.CreateBookResponse response = Books.CreateBookResponse.newBuilder()
                 .setId(generatedId)
                 .setTitle(request.getTitle())
                 .setAuthorId(request.getAuthorId())
@@ -58,19 +82,21 @@ public class BookServiceImpl extends BookServiceGrpc.BookServiceImplBase {
                 .setPublishingYear(request.getPublishingYear())
                 .build();
 
-        bookList.add(newBook);
-
-        for (StreamObserver<Books.Book> subscriber : subscribers) {
-            subscriber.onNext(newBook);
-        }
-
-        Books.CreateBookResponse response = Books.CreateBookResponse.newBuilder()
+        // Notify WatchBooks subscribers
+        Books.Book newBook = Books.Book.newBuilder()
                 .setId(generatedId)
-                .setTitle(newBook.getTitle())
-                .setAuthorId(newBook.getAuthorId())
-                .setPublisherId(newBook.getPublisherId())
-                .setPublishingYear(newBook.getPublishingYear())
+                .setTitle(request.getTitle())
+                .setAuthorId(request.getAuthorId())
+                .setPublisherId(request.getPublisherId())
+                .setPublishingYear(request.getPublishingYear())
                 .build();
+        for (StreamObserver<Books.Book> subscriber : subscribers) {
+            try {
+                subscriber.onNext(newBook);
+            } catch (Exception e) {
+                subscribers.remove(subscriber);
+            }
+        }
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -79,9 +105,5 @@ public class BookServiceImpl extends BookServiceGrpc.BookServiceImplBase {
     @Override
     public void watchBooks(Books.WatchBooksRequest request, StreamObserver<Books.Book> responseObserver) {
         subscribers.add(responseObserver);
-
-        for (Books.Book book : bookList) {
-            responseObserver.onNext(book);
-        }
     }
 }
