@@ -1,0 +1,29 @@
+# IDEs
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+dist/
+*.egg-info/
+
+# Poetry
+poetry.lock
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+
+# Env
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
