@@ -1,0 +1,448 @@
+{
+  "info": {
+    "name": "Library GraphQL API – Happy Path",
+    "description": "Happy path tests for the GraphQL Library API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "GQL_BASE",
+      "value": "http://localhost:8001/graphql"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authors",
+      "item": [
+        {
+          "name": "Create Author",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation { createAuthor(input: { name: \"Jane\", surname: \"Austen\" }) { id name surname } }",
+                "variables": ""
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.createAuthor;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data).to.have.property('name');",
+                  "    pm.expect(data).to.have.property('surname');",
+                  "    pm.expect(data.name).to.eql('Jane');",
+                  "    pm.expect(data.surname).to.eql('Austen');",
+                  "});",
+                  "pm.collectionVariables.set('author_id', pm.response.json().data.createAuthor.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Authors",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "{ authors { id name surname } }",
+                "variables": ""
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const authors = pm.response.json().data.authors;",
+                  "    pm.expect(authors).to.be.an('array');",
+                  "    if (authors.length > 0) {",
+                  "        pm.expect(authors[0]).to.have.property('id');",
+                  "        pm.expect(authors[0]).to.have.property('name');",
+                  "        pm.expect(authors[0]).to.have.property('surname');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Author",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($id: Int!) { updateAuthor(id: $id, input: { name: \"Jane\", surname: \"Austen-Leigh\" }) { id name surname } }",
+                "variables": "{\"id\": {{author_id}}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.updateAuthor;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data.surname).to.eql('Austen-Leigh');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Publishers",
+      "item": [
+        {
+          "name": "Create Publisher",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation { createPublisher(input: { name: \"HarperCollins\" }) { id name } }",
+                "variables": ""
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.createPublisher;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data).to.have.property('name');",
+                  "    pm.expect(data.name).to.eql('HarperCollins');",
+                  "});",
+                  "pm.collectionVariables.set('publisher_id', pm.response.json().data.createPublisher.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Publishers",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "{ publishers { id name } }",
+                "variables": ""
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const pubs = pm.response.json().data.publishers;",
+                  "    pm.expect(pubs).to.be.an('array');",
+                  "    if (pubs.length > 0) {",
+                  "        pm.expect(pubs[0]).to.have.property('id');",
+                  "        pm.expect(pubs[0]).to.have.property('name');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Publisher",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($id: Int!) { updatePublisher(id: $id, input: { name: \"Harper Perennial\" }) { id name } }",
+                "variables": "{\"id\": {{publisher_id}}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.updatePublisher;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data.name).to.eql('Harper Perennial');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Create Book",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($input: CreateBookInput!) { createBook(input: $input) { id title authorId publisherId publishingYear } }",
+                "variables": "{\"input\": {\"title\": \"Pride and Prejudice\", \"authorId\": {{author_id}}, \"publisherId\": {{publisher_id}}, \"publishingYear\": 1960}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.createBook;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data).to.have.property('title');",
+                  "    pm.expect(data).to.have.property('authorId');",
+                  "    pm.expect(data).to.have.property('publisherId');",
+                  "    pm.expect(data).to.have.property('publishingYear');",
+                  "    pm.expect(data.title).to.eql('Pride and Prejudice');",
+                  "    pm.expect(data.publishingYear).to.eql(1960);",
+                  "});",
+                  "pm.collectionVariables.set('book_id', pm.response.json().data.createBook.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Book by ID",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query ($id: Int!) { book(id: $id) { id title authorId publisherId publishingYear } }",
+                "variables": "{\"id\": {{book_id}}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.book;",
+                  "    pm.expect(data).to.not.be.null;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data).to.have.property('title');",
+                  "    pm.expect(data).to.have.property('authorId');",
+                  "    pm.expect(data).to.have.property('publisherId');",
+                  "    pm.expect(data).to.have.property('publishingYear');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Book",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($id: Int!, $input: UpdateBookInput!) { updateBook(id: $id, input: $input) { id title authorId publisherId publishingYear } }",
+                "variables": "{\"id\": {{book_id}}, \"input\": {\"title\": \"Pride & Prejudice\", \"authorId\": {{author_id}}, \"publisherId\": {{publisher_id}}, \"publishingYear\": 1960}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Response structure', () => {",
+                  "    const data = pm.response.json().data.updateBook;",
+                  "    pm.expect(data).to.have.property('id');",
+                  "    pm.expect(data.title).to.eql('Pride & Prejudice');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Book",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($id: Int!) { deleteBook(id: $id) }",
+                "variables": "{\"id\": {{book_id}}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Delete returned true', () => {",
+                  "    pm.expect(pm.response.json().data.deleteBook).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cleanup",
+      "item": [
+        {
+          "name": "Delete Author",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($id: Int!) { deleteAuthor(id: $id) }",
+                "variables": "{\"id\": {{author_id}}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Delete returned true', () => {",
+                  "    pm.expect(pm.response.json().data.deleteAuthor).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Publisher",
+          "request": {
+            "method": "POST",
+            "url": "{{GQL_BASE}}",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation ($id: Int!) { deletePublisher(id: $id) }",
+                "variables": "{\"id\": {{publisher_id}}}"
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No errors', () => {",
+                  "    pm.expect(pm.response.json()).to.not.have.property('errors');",
+                  "});",
+                  "pm.test('Delete returned true', () => {",
+                  "    pm.expect(pm.response.json().data.deletePublisher).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

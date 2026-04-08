@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "Library SOAP API – Happy Path",
+    "description": "Happy path tests for the SOAP Library API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "SOAP_BASE",
+      "value": "http://localhost:8080/soap/LibraryService"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authors",
+      "item": [
+        {
+          "name": "Create Author",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:createAuthor xmlns:ns2=\"http://library.org/soap\">\n      <name>George</name>\n      <surname>Orwell</surname>\n    </ns2:createAuthor>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains return (ID)', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<return>');",
+                  "    const match = xml.match(/<return>(\\d+)<\\/return>/);",
+                  "    pm.expect(match).to.not.be.null;",
+                  "    pm.collectionVariables.set('author_id', match[1]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Author by ID",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:getAuthorById xmlns:ns2=\"http://library.org/soap\">\n      <id>{{author_id}}</id>\n    </ns2:getAuthorById>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains author fields', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<name>');",
+                  "    pm.expect(xml).to.include('<surname>');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Authors",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:listAuthors xmlns:ns2=\"http://library.org/soap\"/>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains return elements', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<return>');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Author",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:updateAuthor xmlns:ns2=\"http://library.org/soap\">\n      <id>{{author_id}}</id>\n      <name>Eric</name>\n      <surname>Blair</surname>\n    </ns2:updateAuthor>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No SOAP Fault', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('Fault');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Publishers",
+      "item": [
+        {
+          "name": "Create Publisher",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:createPublisher xmlns:ns2=\"http://library.org/soap\">\n      <name>Penguin Books</name>\n    </ns2:createPublisher>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains return (ID)', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<return>');",
+                  "    const match = xml.match(/<return>(\\d+)<\\/return>/);",
+                  "    pm.expect(match).to.not.be.null;",
+                  "    pm.collectionVariables.set('publisher_id', match[1]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Publisher by ID",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:getPublisherById xmlns:ns2=\"http://library.org/soap\">\n      <id>{{publisher_id}}</id>\n    </ns2:getPublisherById>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains publisher fields', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<name>');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Publishers",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:listPublishers xmlns:ns2=\"http://library.org/soap\"/>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains return elements', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<return>');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Publisher",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:updatePublisher xmlns:ns2=\"http://library.org/soap\">\n      <id>{{publisher_id}}</id>\n      <name>Penguin Classics</name>\n    </ns2:updatePublisher>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No SOAP Fault', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('Fault');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Create Book",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:createBook xmlns:ns2=\"http://library.org/soap\">\n      <title>1984</title>\n      <authorId>{{author_id}}</authorId>\n      <publisherId>{{publisher_id}}</publisherId>\n      <publishingYear>1949</publishingYear>\n    </ns2:createBook>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains return (ID)', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<return>');",
+                  "    const match = xml.match(/<return>(\\d+)<\\/return>/);",
+                  "    pm.expect(match).to.not.be.null;",
+                  "    pm.collectionVariables.set('book_id', match[1]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Book by ID",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:getBookById xmlns:ns2=\"http://library.org/soap\">\n      <id>{{book_id}}</id>\n    </ns2:getBookById>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response contains book fields', () => {",
+                  "    const xml = pm.response.text();",
+                  "    pm.expect(xml).to.include('<title>');",
+                  "    pm.expect(xml).to.include('<authorId>');",
+                  "    pm.expect(xml).to.include('<publisherId>');",
+                  "    pm.expect(xml).to.include('<publishingYear>');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Book",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:updateBook xmlns:ns2=\"http://library.org/soap\">\n      <id>{{book_id}}</id>\n      <title>Nineteen Eighty-Four</title>\n      <authorId>{{author_id}}</authorId>\n      <publisherId>{{publisher_id}}</publisherId>\n      <publishingYear>1949</publishingYear>\n    </ns2:updateBook>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No SOAP Fault', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('Fault');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Book",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:deleteBook xmlns:ns2=\"http://library.org/soap\">\n      <id>{{book_id}}</id>\n    </ns2:deleteBook>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No SOAP Fault', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('Fault');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cleanup",
+      "item": [
+        {
+          "name": "Delete Author",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:deleteAuthor xmlns:ns2=\"http://library.org/soap\">\n      <id>{{author_id}}</id>\n    </ns2:deleteAuthor>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No SOAP Fault', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('Fault');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Publisher",
+          "request": {
+            "method": "POST",
+            "url": "{{SOAP_BASE}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <ns2:deletePublisher xmlns:ns2=\"http://library.org/soap\">\n      <id>{{publisher_id}}</id>\n    </ns2:deletePublisher>\n  </soap:Body>\n</soap:Envelope>"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No SOAP Fault', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('Fault');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "Library gRPC API – Happy Path",
+    "description": "Happy path tests for the gRPC Library API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "GRPC_HOST",
+      "value": "localhost:9090"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Book",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "grpc://{{GRPC_HOST}}/book.BookService/CreateBook",
+          "protocol": "grpc",
+          "host": ["{{GRPC_HOST}}"],
+          "path": ["book.BookService", "CreateBook"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"1984\",\n  \"author_id\": \"1\",\n  \"publisher_id\": \"1\",\n  \"publishing_year\": 1949\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status OK', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response has book ID', () => {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property('id');",
+              "    pm.expect(body).to.have.property('title');",
+              "    pm.expect(body.title).to.eql('1984');",
+              "    pm.collectionVariables.set('book_id', body.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Book by ID",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "grpc://{{GRPC_HOST}}/book.BookService/GetBookById",
+          "protocol": "grpc",
+          "host": ["{{GRPC_HOST}}"],
+          "path": ["book.BookService", "GetBookById"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{book_id}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status OK', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response has book fields', () => {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property('id');",
+              "    pm.expect(body).to.have.property('title');",
+              "    pm.expect(body).to.have.property('author_id');",
+              "    pm.expect(body).to.have.property('publisher_id');",
+              "    pm.expect(body).to.have.property('publishing_year');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Watch Books (Server Streaming)",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "grpc://{{GRPC_HOST}}/book.BookService/WatchBooks",
+          "protocol": "grpc",
+          "host": ["{{GRPC_HOST}}"],
+          "path": ["book.BookService", "WatchBooks"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('Stream started', () => {", "    pm.response.to.have.status(200);", "});"]
+          }
+        }
+      ]
+    }
+  ]
+}
