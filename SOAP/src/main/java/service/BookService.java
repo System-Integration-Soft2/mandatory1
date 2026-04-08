@@ -14,7 +14,7 @@ import java.util.List;
 public class BookService {
 
     @Transactional
-    public long create(String title, long authorId, long publisherId, int publishingYear)
+    public int create(String title, int authorId, int publisherId, int publishingYear)
             throws ValidationFault {
         if (title == null || title.isBlank())
             throw new ValidationFault("title is required");
@@ -29,7 +29,7 @@ public class BookService {
         return b.id;
     }
 
-    public Book getById(long id) throws NotFoundFault {
+    public Book getById(int id) throws NotFoundFault {
         Book b = Book.findById(id);
         if (b == null) throw new NotFoundFault("Book with id " + id + " not found");
         return b;
@@ -40,7 +40,7 @@ public class BookService {
     }
 
     @Transactional
-    public void update(long id, String title, long authorId, long publisherId, int publishingYear)
+    public void update(int id, String title, int authorId, int publisherId, int publishingYear)
             throws NotFoundFault, ValidationFault {
         if (title == null || title.isBlank())
             throw new ValidationFault("title is required");
@@ -59,7 +59,7 @@ public class BookService {
     }
 
     @Transactional
-    public void delete(long id) throws NotFoundFault {
+    public void delete(int id) throws NotFoundFault {
         Book b = Book.findById(id);
         if (b == null) throw new NotFoundFault("Book with id " + id + " not found");
         b.delete();

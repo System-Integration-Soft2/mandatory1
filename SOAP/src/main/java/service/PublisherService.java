@@ -14,7 +14,7 @@ import java.util.List;
 public class PublisherService {
 
     @Transactional
-    public long create(String name) throws ValidationFault {
+    public int create(String name) throws ValidationFault {
         if (name == null || name.isBlank())
             throw new ValidationFault("name is required");
         Publisher p = new Publisher(name.trim());
@@ -22,7 +22,7 @@ public class PublisherService {
         return p.id;
     }
 
-    public Publisher getById(long id) throws NotFoundFault {
+    public Publisher getById(int id) throws NotFoundFault {
         Publisher p = Publisher.findById(id);
         if (p == null) throw new NotFoundFault("Publisher with id " + id + " not found");
         return p;
@@ -33,7 +33,7 @@ public class PublisherService {
     }
 
     @Transactional
-    public void update(long id, String name) throws NotFoundFault, ValidationFault {
+    public void update(int id, String name) throws NotFoundFault, ValidationFault {
         if (name == null || name.isBlank())
             throw new ValidationFault("name is required");
         Publisher p = Publisher.findById(id);
@@ -42,7 +42,7 @@ public class PublisherService {
     }
 
     @Transactional
-    public void delete(long id) throws NotFoundFault, ConflictFault {
+    public void delete(int id) throws NotFoundFault, ConflictFault {
         Publisher p = Publisher.findById(id);
         if (p == null) throw new NotFoundFault("Publisher with id " + id + " not found");
         long refs = Book.count("publisherId", id);

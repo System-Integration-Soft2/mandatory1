@@ -30,10 +30,10 @@ public class LibraryWebService {
 
     // ── Book ──────────────────────────────────────────────────
     @WebMethod
-    public long createBook(
+    public int createBook(
             @WebParam(name = "title") String title,
-            @WebParam(name = "authorId") long authorId,
-            @WebParam(name = "publisherId") long publisherId,
+            @WebParam(name = "authorId") int authorId,
+            @WebParam(name = "publisherId") int publisherId,
             @WebParam(name = "publishingYear") int publishingYear)
             throws ValidationFault {
         return bookService.create(title, authorId, publisherId, publishingYear);
@@ -41,17 +41,17 @@ public class LibraryWebService {
 
     @WebMethod
     public Book getBookById(
-            @WebParam(name = "id") long id)
+            @WebParam(name = "id") int id)
             throws NotFoundFault {
         return bookService.getById(id);
     }
 
     @WebMethod
     public void updateBook(
-            @WebParam(name = "id") long id,
+            @WebParam(name = "id") int id,
             @WebParam(name = "title") String title,
-            @WebParam(name = "authorId") long authorId,
-            @WebParam(name = "publisherId") long publisherId,
+            @WebParam(name = "authorId") int authorId,
+            @WebParam(name = "publisherId") int publisherId,
             @WebParam(name = "publishingYear") int publishingYear)
             throws NotFoundFault, ValidationFault {
         bookService.update(id, title, authorId, publisherId, publishingYear);
@@ -59,14 +59,14 @@ public class LibraryWebService {
 
     @WebMethod
     public void deleteBook(
-            @WebParam(name = "id") long id)
+            @WebParam(name = "id") int id)
             throws NotFoundFault {
         bookService.delete(id);
     }
 
     // ── Author ────────────────────────────────────────────────
     @WebMethod
-    public long createAuthor(
+    public int createAuthor(
             @WebParam(name = "name") String name,
             @WebParam(name = "surname") String surname)
             throws ValidationFault {
@@ -75,7 +75,7 @@ public class LibraryWebService {
 
     @WebMethod
     public Author getAuthorById(
-            @WebParam(name = "id") long id)
+            @WebParam(name = "id") int id)
             throws NotFoundFault {
         return authorService.getById(id);
     }
@@ -87,7 +87,7 @@ public class LibraryWebService {
 
     @WebMethod
     public void updateAuthor(
-            @WebParam(name = "id") long id,
+            @WebParam(name = "id") int id,
             @WebParam(name = "name") String name,
             @WebParam(name = "surname") String surname)
             throws NotFoundFault, ValidationFault {
@@ -96,14 +96,14 @@ public class LibraryWebService {
 
     @WebMethod
     public void deleteAuthor(
-            @WebParam(name = "id") long id)
+            @WebParam(name = "id") int id)
             throws NotFoundFault, ConflictFault {
         authorService.delete(id);
     }
 
     // ── Publisher ─────────────────────────────────────────────
     @WebMethod
-    public long createPublisher(
+    public int createPublisher(
             @WebParam(name = "name") String name)
             throws ValidationFault {
         return publisherService.create(name);
@@ -111,7 +111,7 @@ public class LibraryWebService {
 
     @WebMethod
     public Publisher getPublisherById(
-            @WebParam(name = "id") long id)
+            @WebParam(name = "id") int id)
             throws NotFoundFault {
         return publisherService.getById(id);
     }
@@ -123,7 +123,7 @@ public class LibraryWebService {
 
     @WebMethod
     public void updatePublisher(
-            @WebParam(name = "id") long id,
+            @WebParam(name = "id") int id,
             @WebParam(name = "name") String name)
             throws NotFoundFault, ValidationFault {
         publisherService.update(id, name);
@@ -131,7 +131,7 @@ public class LibraryWebService {
 
     @WebMethod
     public void deletePublisher(
-            @WebParam(name = "id") long id)
+            @WebParam(name = "id") int id)
             throws NotFoundFault, ConflictFault {
         publisherService.delete(id);
     }

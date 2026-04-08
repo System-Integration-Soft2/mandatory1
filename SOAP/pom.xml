@@ -50,15 +50,16 @@
 
         <!-- SQLite JDBC driver -->
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-jdbc-h2</artifactId>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.3.0</version>
         </dependency>
-        <!-- Vi bruger H2 i SQLite-kompatibel mode for enkelhedens skyld.
-             Vil du have rigtig SQLite, udskift med:
-             <groupId>org.xerial</groupId>
-             <artifactId>sqlite-jdbc</artifactId>
-             <version>3.45.3.0</version>
-             og tilpas datasource i application.properties -->
+
+        <!-- Hibernate SQLite dialect -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>

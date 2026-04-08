@@ -15,7 +15,7 @@ import java.util.List;
 public class AuthorService {
 
     @Transactional
-    public long create(String name, String surname) throws ValidationFault {
+    public int create(String name, String surname) throws ValidationFault {
         if (name == null || name.isBlank())
             throw new ValidationFault("name is required");
         if (surname == null || surname.isBlank())
@@ -25,7 +25,7 @@ public class AuthorService {
         return a.id;
     }
 
-    public Author getById(long id) throws NotFoundFault {
+    public Author getById(int id) throws NotFoundFault {
         Author a = Author.findById(id);
         if (a == null) throw new NotFoundFault("Author with id " + id + " not found");
         return a;
@@ -36,7 +36,7 @@ public class AuthorService {
     }
 
     @Transactional
-    public void update(long id, String name, String surname)
+    public void update(int id, String name, String surname)
             throws NotFoundFault, ValidationFault {
         if (name == null || name.isBlank())
             throw new ValidationFault("name is required");
@@ -49,7 +49,7 @@ public class AuthorService {
     }
 
     @Transactional
-    public void delete(long id) throws NotFoundFault, ConflictFault {
+    public void delete(int id) throws NotFoundFault, ConflictFault {
         Author a = Author.findById(id);
         if (a == null) throw new NotFoundFault("Author with id " + id + " not found");
         long refs = Book.count("authorId", id);
